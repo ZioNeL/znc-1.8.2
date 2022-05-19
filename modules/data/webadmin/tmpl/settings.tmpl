@@ -1,0 +1,241 @@
+<? I18N znc-webadmin ?>
+<? INC Header.tmpl ?>
+
+<div class="section">
+
+	<h3><? FORMAT "Listen Port(s)" ?></h3>
+	<div class="sectionbg">
+		<div class="sectionbody">
+			<div class="subsection">
+				<table>
+					<thead>
+						<tr>
+						    <th><? FORMAT "Port" ?></th>
+						    <th><? FORMAT "BindHost" ?></th>
+						    <th><? FORMAT "SSL" ?></th>
+						    <th><? FORMAT "IPv4" ?></th>
+						    <th><? FORMAT "IPv6" ?></th>
+						    <th><? FORMAT "IRC" ?></th>
+						    <th><? FORMAT "HTTP" ?></th>
+						    <th><? FORMAT "URIPrefix" ?></th>
+						    <th><? FORMAT "Delete" ?></th>
+						</tr>
+					</thead>
+
+				<? LOOP ListenLoop ?>
+					<tr class="<? IF __EVEN__ ?>evenrow<? ELSE ?>oddrow<? ENDIF ?>">
+						<td><? VAR Port ?></td>
+						<td><? VAR BindHost DEFAULT=** ?></td>
+						<td class="listener_show_ssl">
+							<div class="checkbox"><input type="checkbox" disabled="disabled" <? IF IsSSL ?>checked="checked"<? ENDIF ?>/></div>
+						</td>
+						<td>
+							<div class="checkbox"><input type="checkbox" disabled="disabled" <? IF IsIPV4 ?>checked="checked"<? ENDIF ?>/></div>
+						</td>
+						<td>
+							<div class="checkbox"><input type="checkbox" disabled="disabled" <? IF IsIPV6 ?>checked="checked"<? ENDIF ?>/></div>
+						</td>
+						<td>
+							<div class="checkbox"><input type="checkbox" disabled="disabled" <? IF IsIRC ?>checked="checked"<? ENDIF ?>/></div>
+						</td>
+						<td>
+							<div class="checkbox"><input type="checkbox" disabled="disabled" <? IF IsHTTP ?>checked="checked"<? ENDIF ?>/></div>
+						</td>
+						<td><? VAR URIPrefix ?></td>
+						<td>
+							<? IF SuggestDeletion ?>
+							<form action="<? VAR URIPrefix TOP ?><? VAR ModPath TOP ?>del_listener" method="post">
+								<? INC _csrf_check.tmpl ?>
+								<input name="host" type="hidden" value="<? VAR BindHost ?>"/>
+								<input name="port" type="hidden" value="<? VAR Port ?>"/>
+								<input name="ipv4" type="hidden" value="<? VAR IsIPV4 ?>"/>
+								<input name="ipv6" type="hidden" value="<? VAR IsIPV6 ?>"/>
+								<input type="submit" value="<? FORMAT "Del" ?>"/>
+							</form>
+							<? ELSE ?>
+							<input type="button" disabled="disabled" title="<? FORMAT "To delete port which you use to access webadmin itself, either connect to webadmin via another port, or do it in IRC (/znc DelPort)" ?>" value="<? FORMAT "Current" ?>"/>
+							<? ENDIF ?>
+						</td>
+					</tr>
+				<? ENDLOOP ?>
+					<tr>
+						<form action="<? VAR URIPrefix TOP ?><? VAR ModPath TOP ?>add_listener" method="post">
+							<? INC _csrf_check.tmpl ?>
+							<td><input name="port" type="number" min="1" max="65535" class="number third"/></td>
+							<td><input name="host" type="text" value="*" class="sixth"/></td>
+							<td><div class="checkbox"><input name="ssl" type="checkbox"/></div></td>
+							<td><div class="checkbox"><input name="ipv4" type="checkbox" checked="checked"/></div></td>
+							<td><div class="checkbox"><input name="ipv6" type="checkbox" checked="checked"/></div></td>
+							<td><div class="checkbox"><input name="irc" type="checkbox" checked="checked"/></div></td>
+							<td><div class="checkbox"><input name="web" type="checkbox" checked="checked"/></div></td>
+							<td><input name="uriprefix" type="text" value="/" class="sixth"/></td>
+							<td><input type="submit" value="<? FORMAT "Add" ?>"/></td>
+						</form>
+					</tr>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+<form action="<? VAR URIPrefix TOP ?><? VAR ModPath TOP ?>settings" method="post">
+	<? INC _csrf_check.tmpl ?>
+	<input type="hidden" name="submitted" value="1" />
+
+	<div class="section">
+		<h3><? FORMAT "Settings" ?></h3>
+		<div class="sectionbg">
+			<div class="sectionbody">
+				<div class="subsection">
+					<div class="inputlabel"><label for="skin"><? FORMAT "Skin:" ?></label></div>
+
+						<select id="skin" name="skin">
+							<? LOOP SkinLoop ?>
+							<option value="<? VAR Name ?>"<? IF Checked ?> selected="selected"<? ENDIF ?>><? IF Name == "_default_" ?><? FORMAT "Default" ?><? ELSE ?><? VAR Name ?><? ENDIF ?></option>
+							<? ENDLOOP ?>
+						</select>
+
+				</div>
+
+
+				<div class="subsection third">
+					<div class="inputlabel"><label for="statusprefix"><? FORMAT "Status Prefix:" ?></label></div>
+					<input id="statusprefix" type="text" name="statusprefix" value="<? VAR StatusPrefix ?>"
+						   title="<? FORMAT "The prefix for the status and module queries." ?>"/>
+					<br /><span class="info"><? FORMAT "Default for new users only." ?></span>
+				</div>
+
+
+				<div class="subsection half">
+					<div class="inputlabel"><label for="maxbufsize"><? FORMAT "Maximum Buffer Size:" ?></label></div>
+					<input id="maxbufsize" type="number" name="maxbufsize" value="<? VAR MaxBufferSize ?>"
+						   title="<? FORMAT "Sets the global Max Buffer Size a user can have." ?>"/>
+				</div>
+
+
+				<div class="subsection half">
+					<div class="inputlabel"><label for="connectdelay"><? FORMAT "Connect Delay:" ?></label></div>
+					<input id="connectdelay" type="number" name="connectdelay" value="<? VAR ConnectDelay ?>"
+						   title="<? FORMAT "The time between connection attempts to IRC servers, in seconds. This affects the connection between ZNC and the IRC server; not the connection between your IRC client and ZNC." ?>"/>
+				</div>
+
+
+				<div class="subsection half">
+					<div class="inputlabel"><label for="serverthrottle"><? FORMAT "Server Throttle:" ?></label></div>
+					<input id="serverthrottle" type="number" name="serverthrottle" value="<? VAR ServerThrottle ?>"
+						   title="<? FORMAT "The minimal time between two connect attempts to the same hostname, in seconds. Some servers refuse your connection if you reconnect too fast." ?>"/>
+				</div>
+
+
+				<div class="subsection half">
+					<div class="inputlabel"><label for="anoniplimit"><? FORMAT "Anonymous Connection Limit per IP:" ?></label></div>
+					<input id="anoniplimit" type="number" name="anoniplimit" value="<? VAR AnonIPLimit ?>"
+						   title="<? FORMAT "Limits the number of unidentified connections per IP." ?>"/>
+				</div>
+
+
+				<div class="subsection">
+					<div class="inputlabel"><? FORMAT "Protect Web Sessions:" ?></div>
+					<div class="checkbox"><input type="checkbox" name="protectwebsessions" id="protectwebsessions_checkbox"<? IF ProtectWebSessions ?> checked="checked"<? ENDIF ?> />
+						<label for="protectwebsessions_checkbox"><? FORMAT "Disallow IP changing during each web session" ?></label></div>
+				</div>
+
+
+				<div class="subsection">
+					<div class="inputlabel"><? FORMAT "Hide ZNC Version:" ?></div>
+					<div class="checkbox"><input type="checkbox" name="hideversion" id="hideversion_checkbox"<? IF HideVersion ?> checked="checked"<? ENDIF ?> />
+						<label for="hideversion_checkbox"><? FORMAT "Hide version number from non-ZNC users" ?></label></div>
+				</div>
+
+				<div class="subsection">
+					<div class="inputlabel"><? FORMAT "Auth Only Via Module:" ?></div>
+					<div class="checkbox"><input type="checkbox" name="authonlyviamodule" id="authonlyviamodule_checkbox"<? IF AuthOnlyViaModule ?> checked="checked"<? ENDIF ?> />
+						<label for="authonlyviamodule_checkbox"><? FORMAT "Allow user authentication by external modules only" ?></label></div>
+				</div>
+
+
+				<div class="subsection twothird">
+					<div class="inputlabel"><label for="motd"><? FORMAT "MOTD:" ?></label></div>
+					<textarea id="motd" name="motd" cols="70" rows="5" class="monospace"><? LOOP MOTDLoop ?><? VAR Line ?>
+<? ENDLOOP ?>
+</textarea>
+					<br /><span class="info"><? FORMAT "“Message of the Day”, sent to all ZNC users on connect." ?></span>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+	<div class="section">
+		<h3><? FORMAT "Global Modules" ?></h3>
+		<div class="sectionbg">
+			<div class="sectionbody">
+				<table>
+					<thead>
+					<tr>
+						<th><? FORMAT "Name" ?></th>
+						<th><? FORMAT "Arguments" ?></th>
+						<th><? FORMAT "Description" ?></th>
+						<th><? FORMAT "Loaded by networks" ?></th>
+						<th><? FORMAT "Loaded by users" ?></th>
+					</tr>
+					</thead>
+					<tbody>
+					<? LOOP ModuleLoop ?>
+					<tr class="<? IF __EVEN__ ?>evenrow<? ELSE ?>oddrow<? ENDIF ?>">
+						<td class="mod_name">
+							<input type="checkbox" name="loadmod" id="lm_<? VAR Name ?>" value="<? VAR Name ?>"
+							<? IF Checked ?> checked="checked"<? ENDIF ?>
+							<? IF Disabled ?> disabled="disabled"<? ENDIF ?> />
+							<label for="lm_<? VAR Name ?>">
+							<? IF Wiki ?><a href="https://wiki.znc.in/<? VAR Wiki ?>" target="_blank" class="external"><? VAR Name ?></a>
+							<? ELSE ?> <? VAR Name ?> <? ENDIF ?></label>
+						</td>
+						<td class="mod_args">
+							<input type="text" name="modargs_<? VAR Name ?>" value="<? VAR Args ?>"
+							<? IF !HasArgs ?> disabled="disabled"<? ENDIF ?>
+							<? IF ArgsHelpText ?> title="<? VAR ArgsHelpText ?>"<? ENDIF ?> />
+						</td>
+						<td class="mod_descr"><? VAR Description ?></td>
+						<td align="center">
+							<? IF CanBeLoadedByNetwork ?>
+								<input type="checkbox" name="loaded_by_network" id="loaded_by_net_<? VAR Name ?>"
+								<? IF LoadedBySomeNetworks && LoadedByAllNetworks ?>
+									checked="checked"
+								<? ENDIF ?>
+								disabled="disabled"/>
+								<? IF LoadedBySomeNetworks && !LoadedByAllNetworks ?>
+									<script type="text/javascript">
+										document.getElementById("loaded_by_net_<? VAR Name ?>").indeterminate = true;
+									</script>
+								<? ENDIF ?>
+							<? ENDIF ?>
+						</td>
+						<td align="center">
+							<? IF CanBeLoadedByUser ?>
+								<input type="checkbox" name="loaded_by_user" id="loaded_by_user_<? VAR Name ?>"
+								<? IF LoadedBySomeUsers && LoadedByAllUsers ?>
+									checked="checked"
+								<? ENDIF ?>
+								disabled="disabled"/>
+								<? IF LoadedBySomeUsers && !LoadedByAllUsers ?>
+									<script type="text/javascript">
+										document.getElementById("loaded_by_user_<? VAR Name ?>").indeterminate = true;
+									</script>
+								<? ENDIF ?>
+							<? ENDIF ?>
+						</td>
+					</tr>
+					<? ENDLOOP ?>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<div class="submitline">
+		<input type="submit" value="<? FORMAT "Save" ?>"/>
+	</div>
+</form>
+
+<? INC Footer.tmpl ?>

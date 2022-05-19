@@ -1,0 +1,24 @@
+<? I18N znc-webadmin ?>
+<? INC Header.tmpl ?>
+
+<div class="section">
+	<h3><? FORMAT "Confirm Network Deletion" ?></h3>
+	<div class="sectionbg">
+		<div class="sectionbody">
+			<div class="subsection">
+				<? FORMAT "Are you sure you want to delete network “{2}” of user “{1}”?" Username Network ?>
+				<form action="<? VAR URIPrefix TOP ?><? VAR ModPath TOP ?>delnetwork" method="post">
+					<? INC _csrf_check.tmpl ?>
+		   			<input type="hidden" name="user" value="<? VAR Username ?>" />
+                    <input type="hidden" name="name" value="<? VAR Network ?>" />
+					<div class="yesnobutton"><input type="submit" value="<? FORMAT "Yes" ?>"/></div>
+				</form>
+				<form action="<? VAR URIPrefix TOP ?><? VAR ModPath TOP ?>edituser?user=<? VAR Username ?>" method="get">
+					<div class="yesnobutton"><input type="submit" value="<? FORMAT "No" ?>"/></div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+<? INC Footer.tmpl ?>

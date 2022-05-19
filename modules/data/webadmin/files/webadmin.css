@@ -1,0 +1,23 @@
+.encoding-placeholder-big {
+	text-decoration:underline;
+	font-style:italic;
+}
+
+.encoding-settings {
+	width: 500px;
+}
+
+table .sorted::after {
+	content:" ▾";
+}
+table .reverse-sorted::after {
+	content:" ▴";
+}
+
+.ctcpreplies_row_request {
+	width: 100px;
+}
+.ctcpreplies_row_response {
+	width: 400px;
+}
+

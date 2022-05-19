@@ -1,0 +1,33 @@
+<? I18N znc-listsockets ?>
+<? INC Header.tmpl ?>
+
+<table class="data">
+	<thead>
+		<tr>
+			<th><? FORMAT "Name" ?></th>
+			<th><? FORMAT "Created" ?></th>
+			<th><? FORMAT "State" ?></th>
+			<th><? FORMAT "SSL" ?></th>
+			<th><? FORMAT "Local" ?></th>
+			<th><? FORMAT "Remote" ?></th>
+			<th><? FORMAT "Data In" ?></th>
+			<th><? FORMAT "Data Out" ?></th>
+		</tr>
+	</thead>
+	<tbody>
+		<? LOOP SocketsLoop ?>
+		<tr class="<? IF __EVEN__ ?>evenrow<? ELSE ?>oddrow<? ENDIF ?>">
+			<td><? VAR Name ?></td>
+			<td><? VAR Created ?></td>
+			<td><? VAR State ?></td>
+			<td><? VAR SSL ?></td>
+			<td><? VAR Local ?></td>
+			<td><? VAR Remote ?></td>
+			<td><? VAR In ?></td>
+			<td><? VAR Out ?></td>
+		</tr>
+		<? ENDLOOP ?>
+	</tbody>
+</table>
+
+<? INC Footer.tmpl ?>

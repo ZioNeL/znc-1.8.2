@@ -1,0 +1,299 @@
+<? I18N znc-webadmin ?>
+<? AddRow JSLoop HREF=/modfiles/global/webadmin/webadmin.js ?>
+<? AddRow CSSLoop HREF=/modfiles/global/webadmin/webadmin.css ?>
+<? INC Header.tmpl ?>
+
+<div class="section">
+	<? IF Edit ?>
+		<? SETBLOCK ClientConnectHint_Password ?><? VAR Username ?>/<? VAR Name ?>:<? FORMAT "&lt;password&gt;" ?><? ENDSETBLOCK ?>
+		<? SETBLOCK ClientConnectHint_Username ?><? VAR Username ?>/<? VAR Name ?><? ENDSETBLOCK ?>
+	<? ELSE ?>
+		<? SETBLOCK ClientConnectHint_Password ?><? VAR Username ?>/<? FORMAT "&lt;network&gt;" ?>:<? FORMAT "&lt;password&gt;" ?><? ENDSETBLOCK ?>
+		<? SETBLOCK ClientConnectHint_Username ?><? VAR Username ?>/<? FORMAT "&lt;network&gt;" ?><? ENDSETBLOCK ?>
+	<? ENDIF ?>
+	<p><? FORMAT "To connect to this network from your IRC client, you can set the server password field as <code>{1}</code> or username field as <code>{2}</code>" "ClientConnectHint_Password ESC=" "ClientConnectHint_Username ESC=" ?>
+</div>
+
+<form action="<? VAR URIPrefix TOP ?><? VAR ModPath TOP ?><? IF Edit ?>editnetwork<? ELSE ?>addnetwork<? ENDIF ?>" method="post">
+	<? INC _csrf_check.tmpl ?>
+	<div class="section">
+		<input type="hidden" name="submitted" value="1" />
+		<input type="hidden" name="user" value="<? VAR Username ?>" />
+		<input type="hidden" name="network" value="<? VAR Name ?>" />
+
+		<h3><? FORMAT "Network Info" ?></h3>
+        <span class="info"><? FORMAT "Nick, AltNick, Ident, RealName, BindHost can be left empty to use the value from the user." ?></span>
+		<div class="sectionbg">
+			<div class="sectionbody">
+				<div class="subsection">
+					<div class="inputlabel"><label for="name"><? FORMAT "Network Name:" ?></label></div>
+					<input id="name" type="text" name="name" value="<? VAR Name ?>" class="half" maxlength="128"
+						   title="<? FORMAT "The name of the IRC network." ?>"/>
+				</div>
+
+            	<div class="subsection">
+					<div class="inputlabel"><label for="nick"><? FORMAT "Nickname:" ?></label></div>
+					<input id="nick" type="text" name="nick" value="<? VAR Nick ?>" class="half" maxlength="128"
+						   title="<? FORMAT "Your nickname on IRC." ?>"/>
+				</div>
+				<div class="subsection">
+					<div class="inputlabel"><label for="altnick"><? FORMAT "Alt. Nickname:" ?></label></div>
+					<input id="altnick" type="text" name="altnick" value="<? VAR AltNick ?>" class="half" maxlength="128"
+						   title="<? FORMAT "Your secondary nickname, if the first is not available on IRC." ?>"/>
+				</div>
+				<div style="clear: both;"></div>
+				<div class="subsection">
+					<div class="inputlabel"><label for="ident"><? FORMAT "Ident:" ?></label></div>
+					<input id="ident" type="text" name="ident" value="<? VAR Ident ?>" class="half" maxlength="128"
+						   title="<? FORMAT "Your ident." ?>"/>
+				</div>
+                <div class="subsection">
+					<div class="inputlabel"><label for="realname"><? FORMAT "Realname:" ?></label></div>
+					<input id="realname" type="text" name="realname" value="<? VAR RealName ?>" class="full" maxlength="256"
+						   title="<? FORMAT "Your real name." ?>"/>
+				</div>
+
+				<? IF BindHostEdit ?>
+				<div class="subsection">
+					<div class="inputlabel"><label for="bindhost"><? FORMAT "BindHost:" ?></label></div>
+					<input id="bindhost" type="text" name="bindhost" value="<? VAR BindHost ?>"/>
+				</div>
+				<div style="clear: both;"></div>
+				<? ENDIF ?>
+
+				<div class="subsection">
+					<div class="inputlabel"><label for="quitmsg"><? FORMAT "Quit Message:" ?></label></div>
+					<input id="quitmsg" type="text" name="quitmsg" value="<? VAR QuitMsg ?>" class="full" maxlength="256"
+						   title="<? FORMAT "You may define a Message shown, when you quit IRC." ?>"/>
+				</div>
+
+				<div class="subsection">
+					<div class="inputlabel"><? FORMAT "Active:" ?></div>
+					<div class="checkbox"><input type="checkbox" name="doconnect" id="doconnect_checkbox"<? IF IRCConnectEnabled ?> checked="checked"<? ENDIF ?> />
+						<label for="doconnect_checkbox"><? FORMAT "Connect to IRC &amp; automatically re-connect" ?></label></div>
+				</div>
+
+				<div class="subsection">
+					<div class="inputlabel"><? FORMAT "Trust all certs:" ?></div>
+					<div class="checkbox"><input type="checkbox" name="trustallcerts" id="trustallcerts_checkbox"<? IF TrustAllCerts ?> checked="checked"<? ENDIF ?> />
+						<label for="trustallcerts_checkbox"><? FORMAT "Disable certificate validation (takes precedence over TrustPKI). INSECURE!" ?></label></div>
+				</div>
+
+				<div class="subsection">
+					<div class="inputlabel"><? FORMAT "Automatically detect trusted certificates (Trust the PKI):" ?></div>
+					<div class="checkbox"><input type="checkbox" name="trustpki" id="trustpki_checkbox"<? IF TrustPKI ?> checked="checked"<? ENDIF ?> />
+						<label for="trustpki_checkbox"><? FORMAT "When disabled, manually whitelist all server fingerprints, even if the certificate is valid" ?></label></div>
+				</div>
+
+				<div class="subsection half" id="servers_plain">
+					<div class="inputlabel"><label for="servers_text"><? FORMAT "Servers of this IRC network:" ?></servers></div>
+					<div><textarea name="servers" cols="70" rows="5" id="servers_text"><? LOOP ServerLoop ?><? VAR Server ?>
+<? ENDLOOP ?>
+</textarea></div>
+					<br/><span class="info"><? FORMAT "One server per line, “host [[+]port] [password]”, + means SSL" ?></span>
+				</div>
+				<div class="subsection" id="servers_js" style="display:none">
+					<div><? FORMAT "Servers of this IRC network:" ?></div>
+					<div>
+						<table style="width:100%">
+							<thead>
+								<tr>
+									<th><? FORMAT "Hostname" ?></th>
+									<th><? FORMAT "Port" ?></th>
+									<th><? FORMAT "SSL" ?></th>
+									<th><? FORMAT "Password" ?></th>
+									<th/>
+								</tr>
+							</thead>
+							<tbody id="servers_tbody"/>
+						</table>
+						<input type="button" value="Add" id="servers_add"/>
+					</div>
+				</div>
+				<script type="text/javascript">serverlist_init(jQuery);</script>
+
+				<div class="subsection full">
+					<div class="inputlabel"><label for="fingerprints"><? FORMAT "SHA-256 fingerprints of trusted SSL certificates of this IRC network:" ?></label></div>
+					<div><textarea id="fingerprints" name="fingerprints" cols="50" rows="5"><? LOOP TrustedFingerprints ?><? VAR FP ?>
+<? ENDLOOP ?>
+</textarea></div>
+					<br /><span class="info"><? FORMAT "When these certificates are encountered, checks for hostname, expiration date, CA are skipped" ?></span>
+				</div>
+
+				<div class="subsection">
+					<div class="inputlabel"><? FORMAT "Flood protection:" ?></div>
+					<div class="checkbox">
+						<input type="checkbox" name="floodprotection" id="floodprotection_checkbox"
+							   title="<? FORMAT "You might enable the flood protection. This prevents “excess flood” errors, which occur, when your IRC bot is command flooded or spammed. After changing this, reconnect ZNC to server." ?>"
+							onchange="floodprotection_change();"
+							<? IF FloodProtection ?>checked="checked"<? ENDIF ?> />
+						<label for="floodprotection_checkbox"><? FORMAT CTX="Flood Protection" "Enabled" ?></label>
+					</div>
+				</div>
+				<div class="subsection">
+					<div class="inputlabel"><label for="floodrate"><? FORMAT "Flood protection rate:" ?></label></div>
+					<? SETBLOCK FloodInputField_Rate ?>
+						<input type="number" name="floodrate" min="0.3" step="0.05" id="floodrate"
+						   title="<? FORMAT "The number of seconds per line. After changing this, reconnect ZNC to server." ?>"
+						<? IF FloodProtection ?> value="<? VAR FloodRate ?>" <? ELSE ?> value="2.00" disabled="disabled" <? ENDIF ?> />
+					<? ENDSETBLOCK ?>
+					<? FORMAT "{1} seconds per line" "FloodInputField_Rate ESC=" ?>
+				</div>
+
+				<div class="subsection">
+					<div class="inputlabel"><label for="floodburst"><? FORMAT "Flood protection burst:" ?></label></div>
+					<? SETBLOCK FloodInputField_Burst ?>
+						<input type="number" name="floodburst" min="1" id="floodburst"
+						   title="<? FORMAT "Defines the number of lines, which can be sent immediately. After changing this, reconnect ZNC to server." ?>"
+						<? IF FloodProtection ?> value="<? VAR FloodBurst ?>" <? ELSE ?> value="9" disabled="disabled" <? ENDIF ?> />
+					<? ENDSETBLOCK ?>
+					<? FORMAT "{1} lines can be sent immediately" "FloodInputField_Burst ESC=" ?>
+				</div>
+
+				<div class="subsection">
+					<div class="inputlabel"><label for="joindelay"><? FORMAT "Channel join delay:" ?></label></div>
+					<? SETBLOCK ChannelJoinDelayInputField ?>
+						<input type="number" name="joindelay" min="0" id="joindelay"
+						   title="<? FORMAT "Defines the delay in seconds, until channels are joined after getting connected." ?>"
+						value="<? VAR JoinDelay ?>" />
+					<? ENDSETBLOCK ?>
+					<? FORMAT "{1} seconds" "ChannelJoinDelayInputField ESC=" ?>
+				</div>
+				<script type="text/javascript">floodprotection_change();</script>
+
+				<div style="clear:both;"></div>
+				<div class="subsection" title="<? FORMAT "Character encoding used between ZNC and IRC server." ?>">
+					<div class="inputlabel"><? FORMAT "Server encoding:" ?></div>
+					<? INC encoding_settings.tmpl ?>
+				</div>
+
+				<div style="clear: both;"></div>
+			</div>
+		</div>
+	</div>
+
+	<div class="section">
+		<h3><? FORMAT "Channels" ?></h3>
+		<? IF !Edit ?>
+		<span class="info"><? FORMAT "You will be able to add + modify channels here after you created the network." ?></span><br />
+		<? ELSE ?>
+		<div class="sectionbg">
+			<div class="sectionbody">
+				<table>
+					<thead>
+					<tr>
+						<td>[<a href="<? VAR URIPrefix TOP ?><? VAR ModPath TOP ?>addchan?user=<? VAR Username ESC=URL ?>&amp;network=<? VAR Name ESC=URL ?>"><? FORMAT "Add" ?></a>]</td>
+				<? IF ChannelLoop ?>
+						<th><? FORMAT "Save" ?></th>
+						<th><? FORMAT "Name" ?></th>
+						<th><? FORMAT "CurModes" ?></th>
+						<th><? FORMAT "DefModes" ?></th>
+						<th><? FORMAT "BufferSize" ?></th>
+						<th><? FORMAT "Options" ?></th>
+				<? ELSE ?>
+						<td><? FORMAT "← Add a channel (opens in same page)" ?></td>
+				<? ENDIF ?>
+					</tr>
+					</thead>
+
+					<tbody>
+			<? LOOP ChannelLoop SORTASC=Name ?>
+					<tr class="<? IF __EVEN__ ?>evenrow<? ELSE ?>oddrow<? ENDIF ?>">
+						<td>
+							<input type="hidden" name="channel" value="<? VAR Name ?>" />
+							[<a href="<? VAR URIPrefix TOP ?><? VAR ModPath TOP ?>editchan?user=<? VAR Username ESC=URL ?>&amp;network=<? VAR Network ESC=URL ?>&amp;name=<? VAR Name ESC=URL ?>"><? FORMAT "Edit" ?></a>] [<a href="<? VAR URIPrefix TOP ?><? VAR ModPath TOP ?>delchan?user=<? VAR Username ESC=URL ?>&amp;network=<? VAR Network ESC=URL ?>&amp;name=<? VAR Name ESC=URL ?>"><? FORMAT "Del" ?></a>]
+						</td>
+						<td><input type="checkbox" name="save_<? VAR Name ?>"<? IF InConfig ?> checked="checked"<? ENDIF ?> /></td>
+						<td><? VAR Name ?></td>
+						<td><? VAR CurModes ?></td>
+						<td><? VAR DefModes ?></td>
+						<td><? VAR BufferSize ?></td>
+						<td><? VAR Options ?></td>
+					</tr>
+			<? ENDLOOP ?>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<? ENDIF ?>
+	</div>
+
+	<div class="section">
+		<h3><? FORMAT "Modules" ?></h3>
+		<div class="sectionbg">
+			<div class="sectionbody">
+				<table>
+					<thead>
+					<tr>
+						<th><? FORMAT "Name" ?></th>
+						<th><? FORMAT "Arguments" ?></th>
+						<th><? FORMAT "Description" ?></th>
+						<th><? FORMAT "Loaded globally" ?></th>
+						<th><? FORMAT "Loaded by user" ?></th>
+					</tr>
+					</thead>
+					<tbody>
+
+				<? LOOP ModuleLoop ?>
+					<tr class="<? IF __EVEN__ ?>evenrow<? ELSE ?>oddrow<? ENDIF ?>">
+						<td class="mod_name">
+							<input type="checkbox" name="loadmod" id="lm_<? VAR Name ?>" value="<? VAR Name ?>"<? IF Checked ?> checked="checked"<? ENDIF ?><? IF Disabled ?> disabled="disabled"<? ENDIF ?> /><label for="lm_<? VAR Name ?>"> <? IF Wiki ?><a href="https://wiki.znc.in/<? VAR Wiki ?>" target="_blank" class="external"><? VAR Name ?></a> <? ELSE ?> <? VAR Name ?> <? ENDIF ?></label>
+						</td>
+						<td class="mod_args">
+							<? IF Disabled ?>
+							<? VAR Args ?>
+							<? ELSE ?>
+							<input class="third" type="text" autocomplete="off" name="modargs_<? VAR Name ?>" value="<? VAR Args ?>"
+							<? IF !HasArgs ?> disabled="disabled"<? ENDIF ?>
+							<? IF ArgsHelpText ?> title="<? VAR ArgsHelpText ?>"<? ENDIF ?> />
+							<? ENDIF ?>
+						</td>
+						<td class="mod_descr"><? VAR Description ?></td>
+						<td align="center">
+							<? IF CanBeLoadedGlobally ?>
+								<input type="checkbox" name="loaded_globally" id="loaded_globally_<? VAR Name ?>"
+								<? IF LoadedGlobally ?>
+									checked="checked"
+								<? ENDIF ?>
+								disabled="disabled"/>
+							<? ENDIF ?>
+						</td>
+						<td align="center">
+							<? IF CanBeLoadedByUser ?>
+								<input type="checkbox" name="loaded_by_user" id="loaded_by_user_<? VAR Name ?>"
+								<? IF LoadedByUser ?>
+									checked="checked"
+								<? ENDIF ?>
+								disabled="disabled"/>
+							<? ENDIF ?>
+						</td>
+					</tr>
+				<? ENDLOOP ?>
+
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<? LOOP EmbeddedModuleLoop ?>
+		<? IF Embed ?>
+		<div class="section">
+			<h3><? FORMAT "Module {1}" ModName ?></h3>
+			<? INC *Embed ?>
+		</div>
+		<? ENDIF ?>
+	<? ENDLOOP ?>
+
+	<div class="submitline">
+		<? IF Edit ?>
+		<input type="submit" name="submit_return" value="<? FORMAT "Save and return" ?>"/>
+		<input type="submit" name="submit_continue" value="<? FORMAT "Save and continue" ?>"/>
+		<? ELSE ?>
+		<input type="submit" name="submit_return" value="<? FORMAT "Add Network and return" ?>"/>
+		<input type="submit" name="submit_continue" value="<? FORMAT "Add Network and continue" ?>"/>
+		<? ENDIF ?>
+	</div>
+</form>
+
+<? INC Footer.tmpl ?>

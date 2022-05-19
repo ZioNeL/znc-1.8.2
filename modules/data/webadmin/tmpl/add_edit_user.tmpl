@@ -1,0 +1,441 @@
+<? I18N znc-webadmin ?>
+<? AddRow JSLoop HREF=/modfiles/global/webadmin/webadmin.js ?>
+<? AddRow CSSLoop HREF=/modfiles/global/webadmin/webadmin.css ?>
+<? INC Header.tmpl ?>
+
+<form action="<? VAR URIPrefix TOP ?><? VAR ModPath TOP ?><? IF Edit ?>edituser<? ELSE ?>adduser<? ENDIF ?>" method="post">
+	<? INC _csrf_check.tmpl ?>
+	<div class="section">
+		<input type="hidden" name="submitted" value="1" />
+
+		<!-- Trick Firefox into NOT autofilling password to "change password" field. It will autofill username and password to these useless fields instead. See issue #1163 -->
+		<input name="userdummy" type="text" style="display: none"/>
+		<input name="passworddummy" type="password" style="display: none"/>
+
+		<h3><? FORMAT "Authentication" ?></h3>
+		<div class="sectionbg">
+			<div class="sectionbody">
+				<div class="subsection">
+					<div class="inputlabel"><label for="user"><? FORMAT "Username:" ?></label></div>
+
+						<? IF Clone ?>
+						<input type="hidden" name="clone" value="<? VAR CloneUsername ?>" />
+						<? ENDIF ?>
+						<? IF Edit ?>
+						<input type="hidden" name="user" value="<? VAR Username ?>" />
+						<input id="user" type="text" name="newuser" value="<? VAR Username ?>" class="half" maxlength="128" disabled="disabled" />
+						<? ELSE ?>
+						<input id="user" type="text" name="user" value="<? VAR Username ?>" class="half" maxlength="128"
+							   title="<? FORMAT "Please enter a username." ?>"/>
+						<? ENDIF ?>
+
+				</div>
+				<div class="subsection">
+					<div class="inputlabel"><label for="password"><? FORMAT "Password:" ?></label></div>
+					<input id="password" type="password" name="password" class="half"
+						   title="<? FORMAT "Please enter a password." ?>" autocomplete="off" />
+				</div>
+				<div class="subsection">
+					<div class="inputlabel"><label for="password2"><? FORMAT "Confirm password:" ?></label></div>
+					<input id="password2" type="password" name="password2" class="half"
+						   title="<? FORMAT "Please re-type the above password." ?>"/>
+				</div>
+				<div class="subsection">
+					<div class="inputlabel"><label for="authonlyviamodule"><? FORMAT "Auth Only Via Module:" ?></label></div>
+					<input id="authonlyviamodule" type="checkbox" name="authonlyviamodule"
+						    title="<? FORMAT "Allow user authentication by external modules only, disabling built-in password authentication." ?>"
+						    <? IF AuthOnlyViaModule ?>checked="checked" <? ENDIF ?><? IF !ImAdmin ?>disabled="disabled" <? ENDIF ?>/>
+				</div>
+				<div class="subsection half">
+					<div class="inputlabel"><label for="allowedips"><? FORMAT "Allowed IPs:" ?></label></div>
+					<textarea id="allowedips" name="allowedips" cols="70" rows="5"><? LOOP AllowedHostLoop ?><? VAR Host ?>
+<? ENDLOOP ?>
+</textarea>
+					<br /><span class="info"><? FORMAT "Leave empty to allow connections from all IPs.<br/>Otherwise, one entry per line, wildcards * and ? are available." ?></span>
+				</div>
+				<div style="clear: both;"></div>
+			</div>
+		</div>
+	</div>
+
+	<div class="section">
+		<h3><? FORMAT "IRC Information" ?></h3>
+		<? IF !Edit ?>
+		<span class="info"><? FORMAT "Nick, AltNick, Ident, RealName and QuitMsg can be left empty to use default values." ?></span>
+		<? ENDIF ?>
+		<div class="sectionbg">
+			<div class="sectionbody">
+				<div class="subsection">
+					<div class="inputlabel"><label for="nick"><? FORMAT "Nickname:" ?></label></div>
+					<input id="nick" type="text" name="nick" value="<? VAR Nick ?>" class="half" maxlength="128"
+						   title="<? FORMAT "Your nickname on IRC." ?>"/>
+				</div>
+				<div class="subsection">
+					<div class="inputlabel"><label for="altnick"><? FORMAT "Alt. Nickname:" ?></label></div>
+					<input id="altnick" type="text" name="altnick" value="<? VAR AltNick ?>" class="half" maxlength="128"
+						   title="<? FORMAT "Your secondary nickname, if the first is not available on IRC." ?>"/>
+				</div>
+				<div style="clear: both;"></div>
+				<div class="subsection">
+					<div class="inputlabel"><label for="ident"><? FORMAT "Ident:" ?></label></div>
+					<input id="ident" type="text" name="ident" value="<? VAR Ident ?>" class="half" maxlength="128"
+						   title="<? FORMAT "The Ident is sent to server as username." ?>"/>
+				</div>
+				<div class="subsection">
+					<div class="inputlabel"><label for="statusprefix"><? FORMAT "Status Prefix:" ?></label></div>
+					<input id="statusprefix" type="text" name="statusprefix" value="<? VAR StatusPrefix ?>" class="half" maxlength="5"
+						   title="<? FORMAT "The prefix for the status and module queries." ?>"/>
+				</div>
+				<div style="clear: both;"></div>
+				<div class="subsection">
+					<div class="inputlabel"><label for="realname"><? FORMAT "Realname:" ?></label></div>
+					<input id="realname" type="text" name="realname" value="<? VAR RealName ?>" class="full" maxlength="256"
+						   title="<? FORMAT "Your real name." ?>"/>
+				</div>
+				<div style="clear: both;"></div>
+
+				<? IF BindHostEdit ?>
+				<div class="subsection">
+					<div class="inputlabel"><label for="bindhost"><? FORMAT "BindHost:" ?></label></div>
+					<input id="bindhost" type="text" name="bindhost" value="<? VAR BindHost ?>"/>
+				</div>
+				<div style="clear: both;"></div>
+
+				<div class="subsection">
+					<div class="inputlabel"><label for="dccbindhost"><? FORMAT "DCCBindHost:" ?></label></div>
+					<input id="dccbindhost" type="text" name="dccbindhost" value="<? VAR DCCBindHost ?>"/>
+				</div>
+				<div style="clear: both;"></div>
+				<? ENDIF ?>
+
+				<div class="subsection">
+					<div class="inputlabel"><label for="quitmsg"><? FORMAT "Quit Message:" ?></label></div>
+					<input type="text" name="quitmsg" value="<? VAR QuitMsg ?>" class="full" maxlength="256"
+						   title="<? FORMAT "You may define a Message shown, when you quit IRC." ?>"/>
+				</div>
+				<div style="clear: both;"></div>
+			</div>
+		</div>
+	</div>
+
+	<div class="section">
+		<h3><? FORMAT "Networks" ?></h3>
+		<? IF Edit ?>
+		<div class="sectionbg">
+			<div class="sectionbody">
+				<table class="sortable">
+					<thead>
+					<tr>
+						<td class="ignore-sort">[<a href="<? VAR URIPrefix TOP ?><? VAR ModPath TOP ?>addnetwork?user=<? VAR Username ESC=URL ?>"><? FORMAT "Add" ?></a>]</td>
+				<? IF NetworkLoop ?>
+						<th><? FORMAT "Name" ?></th>
+						<th><? FORMAT "Clients" ?></th>
+						<th><? FORMAT "Current Server" ?></th>
+						<th><? FORMAT "Nick" ?></th>
+					<? ELSE ?>
+						<td><? FORMAT "← Add a network (opens in same page)" ?></td>
+				<? ENDIF ?>
+					</tr>
+					</thead>
+
+					<tbody>
+			<? LOOP NetworkLoop SORTASC=Name ?>
+					<tr class="<? IF __EVEN__ ?>evenrow<? ELSE ?>oddrow<? ENDIF ?>">
+						<td>
+							<input type="hidden" name="network" value="<? VAR Name ?>" />
+							[<a href="<? VAR URIPrefix TOP ?><? VAR ModPath TOP ?>editnetwork?user=<? VAR Username ESC=URL ?>&amp;network=<? VAR Name ESC=URL ?>"><? FORMAT "Edit" ?></a>] [<a href="<? VAR URIPrefix TOP ?><? VAR ModPath TOP ?>delnetwork?user=<? VAR Username ESC=URL ?>&amp;name=<? VAR Name ESC=URL ?>"><? FORMAT "Del" ?></a>]
+						</td>
+						<td><? VAR Name ?></td>
+						<td><? VAR Clients ?></td>
+						<td><? VAR Server DEFAULT="-N/A-" ?></td>
+						<td><? VAR IRCNick ?></td>
+					</tr>
+			<? ENDLOOP ?>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<? ELSE ?>
+			<? IF Clone ?>
+				<span class="info"><? FORMAT "You will be able to add + modify networks here after you have cloned the user." ?></span><br />
+			<? ELSE ?>
+				<span class="info"><? FORMAT "You will be able to add + modify networks here after you have created the user." ?></span><br />
+			<? ENDIF ?>
+		<? ENDIF ?>
+	</div>
+
+	<div class="section">
+		<h3><? FORMAT "Modules" ?></h3>
+		<div class="sectionbg">
+			<div class="sectionbody">
+				<table>
+					<thead>
+					<tr>
+						<th><? FORMAT "Name" ?></th>
+						<th><? FORMAT "Arguments" ?></th>
+						<th><? FORMAT "Description" ?></th>
+						<th><? FORMAT "Loaded globally" ?></th>
+						<th><? FORMAT "Loaded by networks" ?></th>
+					</tr>
+					</thead>
+					<tbody>
+
+				<? LOOP ModuleLoop ?>
+					<tr class="<? IF __EVEN__ ?>evenrow<? ELSE ?>oddrow<? ENDIF ?>">
+						<td class="mod_name">
+							<input type="checkbox" name="loadmod" id="lm_<? VAR Name ?>" value="<? VAR Name ?>"<? IF Checked ?> checked="checked"<? ENDIF ?><? IF Disabled ?> disabled="disabled"<? ENDIF ?> /><label for="lm_<? VAR Name ?>"> <? IF Wiki ?><a href="https://wiki.znc.in/<? VAR Wiki ?>" target="_blank" class="external"><? VAR Name ?></a> <? ELSE ?> <? VAR Name ?> <? ENDIF ?></label>
+						</td>
+						<td class="mod_args">
+							<? IF Disabled ?>
+							<? VAR Args ?>
+							<? ELSE ?>
+							<input class="third" type="text" name="modargs_<? VAR Name ?>" value="<? VAR Args ?>"
+							<? IF !HasArgs ?> disabled="disabled"<? ENDIF ?>
+							<? IF ArgsHelpText ?> title="<? VAR ArgsHelpText ?>"<? ENDIF ?> />
+							<? ENDIF ?>
+						</td>
+						<td class="mod_descr"><? VAR Description ?></td>
+						<td align="center">
+							<? IF CanBeLoadedGlobally ?>
+								<input type="checkbox" name="loaded_globally" id="loaded_globally_<? VAR Name ?>"
+								<? IF LoadedGlobally ?>
+									checked="checked"
+								<? ENDIF ?>
+								disabled="disabled"/>
+							<? ENDIF ?>	
+						</td>
+						<td align="center">
+							<? IF CanBeLoadedByNetwork ?>
+								<input type="checkbox" name="loaded_by_network" id="loaded_by_net_<? VAR Name ?>"
+								<? IF LoadedBySomeNetworks && LoadedByAllNetworks ?>
+									checked="checked"
+								<? ENDIF ?>
+								disabled="disabled"/>
+								<? IF LoadedBySomeNetworks && !LoadedByAllNetworks ?>
+									<script type="text/javascript">
+										document.getElementById("loaded_by_net_<? VAR Name ?>").indeterminate = true;
+									</script>
+								<? ENDIF ?>
+							<? ENDIF ?>
+						</td>
+					</tr>
+				<? ENDLOOP ?>
+
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<div class="section">
+		<h3><? FORMAT "Channels" ?></h3>
+		<div class="sectionbg">
+			<div class="sectionbody">
+				<div class="subsection third">
+					<div class="inputlabel"><label for="chanmodes"><? FORMAT "Default Modes:" ?></label></div>
+					<input id="chanmodes" type="text" name="chanmodes" value="<? VAR DefaultChanModes ?>" maxlength="32"
+						   title="<? FORMAT "These are the default modes ZNC will set when you join an empty channel." ?>"/>
+					<br /><span class="info"><? FORMAT "Empty = use standard value" ?></span>
+				</div>
+				<div class="subsection third">
+					<div class="inputlabel"><label for="chanbufsize"><? FORMAT "Buffer Size:" ?></label></div>
+					<input id="chanbufsize" type="number" name="chanbufsize" value="<? VAR ChanBufferSize ?>" min="0"
+						   title="<? FORMAT "This is the amount of lines that the playback buffer will store for channels before dropping off the oldest line. The buffers are stored in the memory by default." ?>"/>
+					<br /><span class="info"><? FORMAT "Empty = use standard value" ?></span>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="section">
+		<h3><? FORMAT "Queries" ?></h3>
+		<div class="sectionbg">
+			<div class="sectionbody">
+				<div class="subsection third">
+					<div class="inputlabel"><label for="maxquerybuffers"><? FORMAT "Max Buffers:" ?></label></div>
+					<input id="maxquerybuffers" type="number" name="maxquerybuffers" value="<? VAR MaxQueryBuffers ?>" class="third" min="0"
+						   title="<? FORMAT "Maximum number of query buffers. 0 is unlimited." ?>"/>
+				</div>
+				<div class="subsection third">
+					<div class="inputlabel"><label for="querybufsize"><? FORMAT "Buffer Size:" ?></label></div>
+					<input id="querybufsize" type="number" name="querybufsize" value="<? VAR QueryBufferSize ?>" min="0"
+						   title="<? FORMAT "This is the amount of lines that the playback buffer will store for queries before dropping off the oldest line. The buffers are stored in the memory by default." ?>"/>
+					<br /><span class="info"><? FORMAT "Empty = use standard value" ?></span>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="section">
+		<h3><? FORMAT "Flags" ?></h3>
+		<div class="sectionbg">
+			<div class="sectionbody lotsofcheckboxes">
+				<? LOOP OptionLoop ?>
+				<span class="checkboxandlabel" title="<? VAR Tooltip ?>">
+					<input type="checkbox" name="<? VAR Name ?>" id="opt_<? VAR Name ?>" value="1"<? IF Checked ?> checked="checked"<? ENDIF ?><? IF Disabled ?> disabled="disabled"<? ENDIF ?> />
+					<label for="opt_<? VAR Name ?>"><? VAR DisplayName ?></label>
+				</span>
+				<? ENDLOOP ?>
+				<div style="clear:both;"></div>
+			</div>
+		</div>
+	</div>
+
+	<div class="section">
+		<h3><? FORMAT "ZNC Behavior" ?></h3>
+		<span class="info"><? FORMAT "Any of the following text boxes can be left empty to use their default value." ?></span>
+		<div class="sectionbg">
+			<div class="sectionbody">
+				<div class="subsection">
+					<div class="inputlabel"><label for="timestampformat"><? FORMAT "Timestamp Format:" ?></label></div>
+					<input id="timestampformat" type="text" name="timestampformat" value="<? VAR TimestampFormat ?>" class="full"
+						   title="<? FORMAT "The format for the timestamps used in buffers, for example [%H:%M:%S]. This setting is ignored in new IRC clients, which use server-time. If your client supports server-time, change timestamp format in client settings instead." ?>"/>
+				</div>
+				<div class="subsection half">
+					<div class="inputlabel"><label for="timezone"><? FORMAT "Timezone:" ?></label></div>
+					<input id="timezone" type="text" name="timezone" value="<? VAR Timezone ?>" list="timezone_list"
+						   title="Select your timezone." />
+					<br /><span class="info"><? FORMAT "E.g. <code>Europe/Berlin</code>, or <code>GMT-6</code>" ?></span>
+					<datalist id="timezone_list">
+						<? LOOP TZLoop ?>
+						<option value="<? VAR TZ ?>"/>
+						<? ENDLOOP ?>
+					</datalist>
+				</div>
+				<div style="clear:both;"></div>
+				<div class="subsection" title="<? FORMAT "Character encoding used between IRC client and ZNC." ?>">
+					<div class="inputlabel"><? FORMAT "Client encoding:" ?></div>
+					<? INC encoding_settings.tmpl ?>
+				</div>
+				<div style="clear:both;"></div>
+				<div class="subsection">
+					<div class="inputlabel"><label for="jointries"><? FORMAT "Join Tries:" ?></label></div>
+					<input id="jointries" type="number" name="jointries" value="<? VAR JoinTries ?>" class="third" min="0"
+						   title="<? FORMAT "This defines how many times ZNC tries to join a channel, if the first join failed, e.g. due to channel mode +i/+k or if you are banned." ?>"/>
+				</div>
+				<div class="subsection">
+					<div class="inputlabel"><label for="maxjoins"><? FORMAT "Join speed:" ?></label></div>
+					<input id="maxjoins" type="number" name="maxjoins" value="<? VAR MaxJoins ?>" class="third" min="0"
+					       title="<? FORMAT "How many channels are joined in one JOIN command. 0 is unlimited (default). Set to small positive value if you get disconnected with “Max SendQ Exceeded”" ?>"/>
+				</div>
+				<div class="subsection">
+					<div class="inputlabel"><label for="notraffictimeout"><? FORMAT "Timeout before reconnect:" ?></label></div>
+					<input id="notraffictimeout" type="number" name="notraffictimeout" value="<? VAR NoTrafficTimeout ?>" class="third" min="30"
+					       title="<? FORMAT "How much time ZNC waits (in seconds) until it receives something from network or declares the connection timeout. This happens after attempts to ping the peer." ?>"/>
+				</div>
+				<div class="subsection">
+					<div class="inputlabel"><label for="maxnetworks"><? FORMAT "Max IRC Networks Number:" ?></label></div>
+					<input type="number" name="maxnetworks" value="<? VAR MaxNetworks ?>" class="third" min="0"
+					       title="<? FORMAT "Maximum number of IRC networks allowed for this user." ?>" <? IF !ImAdmin ?>disabled="disabled"<? ENDIF ?> />
+				</div>
+
+				<? SETBLOCK Substitutions_Link ?><a href="https://wiki.znc.in/ExpandString" target="_blank" class="external"><? FORMAT "Substitutions" ?></a><? ENDSETBLOCK ?>
+				<div class="subsection half" id="ctcpreplies_plain">
+					<div class="inputlabel"><label for="ctcpreplies_text"><? FORMAT "CTCP Replies:" ?></label></div>
+					<div><textarea name="ctcpreplies" cols="70" rows="3" id="ctcpreplies_text"><? LOOP CTCPLoop ?><? VAR CTCP ?>
+<? ENDLOOP ?>
+</textarea></div>
+					<br /><span class="info"><? FORMAT "One reply per line. Example: <code>TIME Buy a watch!</code>" ?></span>
+					<br /><span class="info"><? FORMAT "{1} are available" "Substitutions_Link ESC=" ?></span>
+				</div>
+				<div class="subsection" id="ctcpreplies_js" style="display:none" data-placeholder="<? FORMAT "Empty value means this CTCP request will be ignored" ?>">
+					<div class="inputlabel"><? FORMAT "CTCP Replies:" ?></div>
+					<div>
+						<table style="width:100%">
+							<thead>
+								<tr>
+									<th><? FORMAT "Request" ?></th>
+									<th><? FORMAT "Response" ?></th>
+									<th/>
+								</tr>
+							</thead>
+							<tbody id="ctcpreplies_tbody"/>
+						</table>
+						<input type="button" value="<? FORMAT "Add" ?>" id="ctcpreplies_add"/>
+						<span class="info"><? FORMAT "{1} are available" "Substitutions_Link ESC=" ?></span>
+						<datalist id="ctcpreplies_list">
+							<option value="PING"/>
+							<option value="FINGER"/>
+							<option value="CLIENTINFO"/>
+							<option value="USERINFO"/>
+							<option value="VERSION"/>
+							<option value="SOURCE"/>
+							<option value="TIME"/>
+							<option value="PAGE"/>
+							<option value="DCC"/>
+							<option value="UPTIME"/>
+						</datalist>
+					</div>
+				</div>
+				<script type="text/javascript">ctcpreplies_init(jQuery);</script>
+
+				<div class="subsection">
+					<div class="inputlabel"><label for="skin"><? FORMAT "Skin:" ?></label></div>
+
+						<? IF SkinLoop ROWS > 1 ?>
+						<select id="skin" name="skin">
+							<option value=""><? FORMAT "- Global -" ?></option>
+							<? LOOP SkinLoop ?>
+							<option value="<? VAR Name ?>"<? IF Checked ?> selected="selected"<? ENDIF ?>><? IF Name == "_default_" ?><? FORMAT "Default" ?><? ELSE ?><? VAR Name ?><? ENDIF ?></option>
+							<? ENDLOOP ?>
+						</select>
+						<? ELSE ?>
+						<? FORMAT "No other skins found" ?>
+						<? ENDIF ?>
+
+				</div>
+
+				<div class="subsection">
+					<div class="inputlabel"><label for="language"><? FORMAT "Language:" ?></label></div>
+
+					<? IF HaveI18N ?>
+					<select id="language" name="language">
+						<? LOOP LanguageLoop ?>
+						<option value="<? VAR Code ?>" <? IF Language TOP == *Code ?>selected="selected"<? ENDIF ?>><? VAR Name ?></option>
+						<? ENDLOOP ?>
+					</select>
+					<? ELSE ?>
+					ZNC is compiled without i18n support
+					<? ENDIF ?>
+				</div>
+
+				<div style="clear: both;"></div>
+			</div>
+		</div>
+	</div>
+
+	<? LOOP EmbeddedModuleLoop ?>
+		<? IF Embed ?>
+		<div class="section">
+			<h3><? FORMAT "Module {1}" ModName ?></h3>
+			<? INC *Embed ?>
+		</div>
+		<? ENDIF ?>
+	<? ENDLOOP ?>
+
+	<div class="submitline">
+		<? IF ImAdmin ?>
+			<? IF Edit ?>
+				<input type="submit" name="submit_return" value="<? FORMAT "Save and return" ?>"/>
+				<input type="submit" name="submit_continue" value="<? FORMAT "Save and continue" ?>"/>
+			<? ELSE IF Clone ?>
+				<input type="submit" name="submit_return" value="<? FORMAT "Clone and return" ?>"/>
+				<input type="submit" name="submit_continue" value="<? FORMAT "Clone and continue" ?>"/>
+			<? ELSE ?>
+				<input type="submit" name="submit_return" value="<? FORMAT "Create and return" ?>"/>
+				<input type="submit" name="submit_continue" value="<? FORMAT "Create and continue" ?>"/>
+			<? ENDIF ?>
+		<? ELSE ?>
+			<? IF Edit ?>
+				<input type="submit" value="<? FORMAT "Save" ?>"/>
+			<? ELSE IF Clone ?>
+				<input type="submit" value="<? FORMAT "Clone" ?>"/>
+			<? ELSE ?>
+				<input type="submit" value="<? FORMAT "Create" ?>"/>
+			<? ENDIF ?>
+		<? ENDIF ?>
+	</div>
+</form>
+<script>make_sortable();</script>
+
+<? INC Footer.tmpl ?>
