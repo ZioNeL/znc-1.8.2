@@ -882,6 +882,12 @@ class CWebAdminMod : public CModule {
         std::shared_ptr<CWebSession> spSession = WebSock.GetSession();
         Tmpl.SetFile("add_edit_network.tmpl");
 
+        if (!pNetwork && !spSession->IsAdmin()){
+            WebSock.PrintErrorPage(t_s(
+		"You must be an administrator to add a new network.  Please contact an administrator for assistance."));
+            return true;
+        }
+
         if (!pNetwork && !spSession->IsAdmin() &&
             !pUser->HasSpaceForNewNetwork()) {
             WebSock.PrintErrorPage(t_s(
@@ -1141,11 +1147,13 @@ class CWebAdminMod : public CModule {
 
         VCString vsArgs;
 
-        pNetwork->DelServers();
+	if (spSession->IsAdmin()) {
+	pNetwork->DelServers();
         WebSock.GetRawParam("servers").Split("\n", vsArgs);
         for (const CString& sServer : vsArgs) {
             pNetwork->AddServer(sServer.Trim_n());
-        }
+         }
+	}
 
         WebSock.GetRawParam("fingerprints").Split("\n", vsArgs);
         pNetwork->ClearTrustedFingerprints();
@@ -1240,7 +1248,8 @@ class CWebAdminMod : public CModule {
     }
 
     bool DelNetwork(CWebSock& WebSock, CUser* pUser, CTemplate& Tmpl) {
-        CString sNetwork = WebSock.GetParam("name");
+        std::shared_ptr<CWebSession> spSession = WebSock.GetSession();
+    CString sNetwork = WebSock.GetParam("name");
         if (sNetwork.empty() && !WebSock.IsPost()) {
             sNetwork = WebSock.GetParam("name", false);
         }
@@ -1249,6 +1258,11 @@ class CWebAdminMod : public CModule {
             WebSock.PrintErrorPage(t_s("No such user"));
             return true;
         }
+	if (!spSession->IsAdmin()) {
+		WebSock.PrintErrorPage(t_s("You must be an administrator to remove a network.  Please contact an administrator for assistance."));
+		return true;
+	}
+
 
         if (sNetwork.empty()) {
             WebSock.PrintErrorPage(

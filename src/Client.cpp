@@ -417,8 +417,7 @@ void CClient::AcceptLogin(CUser& User) {
         }
     } else {
         PutStatusNotice(
-            t_s("You have no networks configured. Use /znc AddNetwork "
-                "<network> to add one."));
+           t_s("You have no networks configured. Please contact a ZNC administrator for assistance. "));
     }
 
     SetNetwork(m_pNetwork, false);
